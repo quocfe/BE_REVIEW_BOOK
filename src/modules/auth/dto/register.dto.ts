@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsEmpty,
   IsNotEmpty,
   IsString,
   Matches,
@@ -40,7 +41,22 @@ export class RegisterDto {
   @IsString()
   username: string;
 
+  @ApiProperty({
+    description: 'firstname',
+    default: 'firstname',
+  })
+  @IsEmpty()
+  firstname: string;
+
+  @ApiProperty({
+    description: 'lastname',
+    default: 'lastname',
+  })
+  @IsEmpty()
+  lastname: string;
+
   @ApiProperty()
+  @IsNotEmpty()
   @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
   @Matches(/^\S+$/, {
     message: 'Mật khẩu không được có khoảng trắng',
@@ -51,6 +67,7 @@ export class RegisterDto {
   password: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @MinLength(6, { message: 'Mật khẩu xác nhận phải có ít nhất 8 ký tự' })
   @Validate(IsPasswordMatchConstraint, {
     message: 'Mật khẩu xác nhận không khớp với mật khẩu',

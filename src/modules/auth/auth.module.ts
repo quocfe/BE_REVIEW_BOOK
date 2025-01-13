@@ -15,6 +15,7 @@ import {
 } from 'src/schemas/refreshTokens.schema';
 import { LoginMiddleware } from 'src/middlewares/user.middleware';
 import { RefreshTokenMiddleware } from 'src/middlewares/refresh_token.middleware';
+import { GoogleStrategy } from 'src/modules/auth/strategies/google.strategy';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { RefreshTokenMiddleware } from 'src/middlewares/refresh_token.middleware
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtStrategy],
+  providers: [AuthService, UserService, JwtStrategy, GoogleStrategy],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {

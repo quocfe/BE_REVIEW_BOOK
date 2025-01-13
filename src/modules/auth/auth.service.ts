@@ -11,6 +11,7 @@ import {
 } from 'src/schemas/refreshTokens.schema';
 import { User, UserDocument } from 'src/schemas/users.schema';
 import { hashValue } from 'src/utils/bcrypt';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -60,6 +61,20 @@ export class AuthService {
     ]);
   }
 
+  async signAndSaveRefreshToken(user_id: string) {
+    const [asscessToken, refreshToken] = await this.signTokens({ user_id });
+    const { exp, iat } = await this.decodeRefreshToken(refreshToken);
+
+    new this.refreshTokenModel({
+      token: refreshToken,
+      exp,
+      iat,
+      user_id,
+    }).save();
+
+    return { asscessToken, refreshToken };
+  }
+
   async decodeRefreshToken(refreshToken: string) {
     return this.jwtService.decode(refreshToken);
   }
@@ -95,6 +110,40 @@ export class AuthService {
     }).save();
 
     return { asscessToken, refreshToken };
+  }
+
+  async googleLogin(req: any) {
+    if (!req.user) {
+      throw new HttpException(Auth.USER_NOT_EXISTS, HttpStatus.BAD_REQUEST);
+    }
+
+    const userDb = await this.userService.findByEmail(req.user.email);
+
+    if (userDb) {
+      const user_id = userDb._id.toString();
+      const { asscessToken, refreshToken } =
+        await this.signAndSaveRefreshToken(user_id);
+
+      return { asscessToken, refreshToken };
+    } else {
+      const username = req.user.email.split('@')[0];
+
+      const user = {
+        email: req.user.email,
+        username: username,
+        firstname: req.user.firstname,
+        lastname: req.user.lastname,
+        avatar: req.user.picture,
+      };
+
+      const newUser = await this.userModel.create(user);
+
+      const { asscessToken, refreshToken } = await this.signAndSaveRefreshToken(
+        newUser._id.toString(),
+      );
+
+      return { asscessToken, refreshToken };
+    }
   }
 
   async refresh_token(user_id: string, exp: number, refresh_token: string) {

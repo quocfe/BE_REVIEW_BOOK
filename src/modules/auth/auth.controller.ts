@@ -1,9 +1,18 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import { Request } from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { Public } from 'src/decorators/public-decorator';
 import { RegisterDto } from 'src/modules/auth/dto/register.dto';
 import { AuthService } from './auth.service';
 import { User, UserDocument } from 'src/schemas/users.schema';
+import { GoogleOAuthGuard } from 'src/modules/auth/guard/google-oauth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -30,6 +39,23 @@ export class AuthController {
       message: 'login success',
       statusCode: 200,
     };
+  }
+
+  @Public()
+  @UseGuards(GoogleOAuthGuard)
+  @Get('/google/login')
+  async googleAuth(@Req() req: Request) {
+    console.log('req in googleAuth', req);
+  }
+
+  @Public()
+  @UseGuards(GoogleOAuthGuard)
+  @Get('/google-redirect')
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.authService.googleLogin(req);
+    res.redirect(
+      `${process.env.CLIENT_URL}/login/?token=${result.asscessToken}&refresh_token=${result.refreshToken}`,
+    );
   }
 
   @Public()

@@ -6,13 +6,19 @@ export type UserDocument = User & Document;
 @Schema({ timestamps: true }) // Tự động thêm createdAt và updatedAt
 export class User {
   _id: ObjectId;
-  @Prop({ required: true }) // `username` phải có và duy nhất
+  @Prop({ required: true })
   username: string;
 
-  @Prop({ required: true, unique: true }) // `email` phải có và duy nhất
+  @Prop({ required: false, default: 'firstName' })
+  firstname: string;
+
+  @Prop({ required: false, default: 'lastName' })
+  lastname: string;
+
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true }) // `password` là trường bắt buộc
+  @Prop({ required: false, default: '' })
   password: string;
 
   @Prop({
