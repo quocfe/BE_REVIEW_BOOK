@@ -1,12 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { CustomValidationPipe } from 'src/pipe/Validation.pipe';
 import * as dotenv from 'dotenv';
+import { CustomValidationPipe } from 'src/pipe/Validation.pipe';
+import { AppModule } from './app.module';
 dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   app.enableCors({
     origin: [process.env.NEXT_PORT_CLIENT, process.env.NEXT_PORT_CMS],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
