@@ -6,33 +6,60 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
+import { Author } from 'src/enums/Author.enum';
+import { QuerysDto } from 'src/modules/admin/book/dto/params.dto';
 
 @Controller('admin/author')
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
   @Post()
-  create(@Body() createAuthorDto: CreateAuthorDto) {
-    return this.authorService.create(createAuthorDto);
+  async create(@Body() createAuthorDto: CreateAuthorDto): Promise<ResType> {
+    const res = await this.authorService.create(createAuthorDto);
+    return {
+      data: res,
+      message: Author.AUTHOR_CREATED,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Get()
-  findAll() {
-    return this.authorService.findAll();
+  async findAll(@Query() querys: QuerysDto): Promise<ResType> {
+    const authors = await this.authorService.findAll(querys);
+    return {
+      data: authors,
+      message: Author.AUTHOR_ALL,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authorService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<ResType> {
+    const author = await this.authorService.findOne(id);
+    return {
+      data: author,
+      message: Author.AUTHOR_FIND,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthorDto: UpdateAuthorDto) {
-    return this.authorService.update(+id, updateAuthorDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateAuthorDto: UpdateAuthorDto,
+  ): Promise<ResType> {
+    await this.authorService.update(id, updateAuthorDto);
+    return {
+      data: '',
+      message: Author.AUTHOR_UPDATED,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Delete(':id')
