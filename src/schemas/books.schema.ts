@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, ObjectId } from 'mongoose';
-import { Author } from 'src/schemas/authors.schema';
 
 export type BookDocument = Book & Document;
 
@@ -17,6 +16,11 @@ export class Book {
   thumbnail: string;
   @Prop({ required: true })
   year_of_publication: string;
+  @Prop({
+    type: Boolean,
+    default: true,
+  })
+  status: boolean;
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',

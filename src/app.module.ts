@@ -11,10 +11,10 @@ import { UserModule } from 'src/modules/user/user.module';
 import { CustomValidationPipe } from 'src/pipe/Validation.pipe';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BookModule } from 'src/modules/book/book.module';
-import { AuthorModule } from 'src/modules/author/author.module';
-import { BlogModule } from 'src/modules/blog/blog.module';
-import { CategoryModule } from 'src/modules/category/category.module';
+import { BookModule } from 'src/modules/admin/book/book.module';
+import { AuthorModule } from 'src/modules/admin/author/author.module';
+import { BlogModule } from 'src/modules/admin/blog/blog.module';
+import { CategoryModule } from 'src/modules/admin/category/category.module';
 
 @Module({
   imports: [

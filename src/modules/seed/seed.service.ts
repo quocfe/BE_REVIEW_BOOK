@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuthorModule } from 'src/modules/author/author.module';
-import { BlogModule } from 'src/modules/blog/blog.module';
+import { AuthorModule } from 'src/modules/admin/author/author.module';
+import { BlogModule } from 'src/modules/admin/blog/blog.module';
 import { Author } from 'src/schemas/authors.schema';
 import { Blog } from 'src/schemas/blogs.schema';
 import { Category, CategoryDocument } from 'src/schemas/categories.schema';

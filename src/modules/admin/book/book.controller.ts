@@ -1,20 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  HttpCode,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
+import { Book } from 'src/enums/Book.enum';
+import { QuerysDto } from 'src/modules/admin/book/dto/params.dto';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from 'src/enums/Book.enum';
 
-@Controller('book')
+@Controller('admin/book')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
@@ -40,8 +41,8 @@ export class BookController {
   }
 
   @Get()
-  async findAll(): Promise<ResType> {
-    const res = await this.bookService.findAll();
+  async findAll(@Query() querys: QuerysDto): Promise<ResType> {
+    const res = await this.bookService.findAll(querys);
 
     return {
       data: res,
@@ -50,13 +51,26 @@ export class BookController {
     };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
-    return this.bookService.update(+id, updateBookDto);
+  @Patch('update/:id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateBookDto: UpdateBookDto,
+  ): Promise<ResType> {
+    await this.bookService.update(id, updateBookDto);
+    return {
+      data: 'ok',
+      message: Book.BOOK_UPDATED,
+      statusCode: HttpStatus.OK,
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bookService.remove(+id);
+  async remove(@Param('id') id: string): Promise<ResType> {
+    await this.bookService.disable(id);
+    return {
+      data: '',
+      message: Book.BOOK_DISABLED,
+      statusCode: HttpStatus.OK,
+    };
   }
 }

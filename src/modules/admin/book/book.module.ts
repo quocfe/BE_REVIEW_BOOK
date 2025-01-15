@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { BookService } from './book.service';
 import { BookController } from './book.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Book } from 'src/modules/book/entities/book.entity';
+import { Book } from 'src/modules/admin/book/entities/book.entity';
 import { BookSchema } from 'src/schemas/books.schema';
 
 @Module({
