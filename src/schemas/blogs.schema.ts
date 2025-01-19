@@ -13,6 +13,8 @@ export class Blog {
   @Prop({ required: false })
   description: string;
   @Prop({ required: true })
+  content: string;
+  @Prop({ required: true })
   thumbnail: string;
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -22,10 +24,11 @@ export class Blog {
   book_id: mongoose.Schema.Types.ObjectId;
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Auhtor',
+    ref: 'Author',
     required: true,
   })
   author_id: mongoose.Schema.Types.ObjectId;
+  
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
