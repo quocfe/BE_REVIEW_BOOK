@@ -59,7 +59,7 @@ export class BlogService {
 
   async findOne(id: string) {
     const blog = await this.blogModel
-      .findById(id)
+      .findByIdAndUpdate(id, { $inc: { view: 1 } }, { new: true })
       .populate('book_id', 'name slug')
       .populate('author_id', 'name slug avatar')
       .exec();
