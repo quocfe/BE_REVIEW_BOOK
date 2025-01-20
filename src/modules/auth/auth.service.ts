@@ -23,9 +23,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private signAccessToken({ user_id }: { user_id: string }) {
+  private signAccessToken({
+    user_id,
+    role,
+  }: {
+    user_id: string;
+    role: number;
+  }) {
     return this.jwtService.sign(
-      { user_id },
+      { user_id, role },
       {
         secret: process.env.ACCESS_TOKEN_SECRET_KEY,
         expiresIn: '1d',
@@ -33,12 +39,20 @@ export class AuthService {
     );
   }
 
-  private signRefeshToken({ user_id, exp }: { user_id: string; exp?: number }) {
+  private signRefeshToken({
+    user_id,
+    exp,
+    role,
+  }: {
+    user_id: string;
+    exp?: number;
+    role: number;
+  }) {
     if (exp) {
       const currentTimestamp = Math.floor(Date.now() / 1000); // Lấy thời gian hiện tại (UNIX timestamp)
       const expiresIn = exp - currentTimestamp; // Thời gian hết hạn tính bằng giây từ thời điểm hiện tại
       return this.jwtService.sign(
-        { user_id },
+        { user_id, role },
         {
           secret: process.env.REFRESH_TOKEN_SECRET_KEY,
           expiresIn: expiresIn,
@@ -46,7 +60,7 @@ export class AuthService {
       );
     }
     return this.jwtService.sign(
-      { user_id },
+      { user_id, role },
       {
         secret: process.env.REFRESH_TOKEN_SECRET_KEY,
         expiresIn: '10d',
@@ -54,15 +68,24 @@ export class AuthService {
     );
   }
 
-  async signTokens({ user_id }: { user_id: string }) {
+  async signTokens({ user_id, role }: { user_id: string; role: number }) {
     return await Promise.all([
-      this.signAccessToken({ user_id }),
-      this.signRefeshToken({ user_id }),
+      this.signAccessToken({ user_id, role }),
+      this.signRefeshToken({ user_id, role }),
     ]);
   }
 
-  async signAndSaveRefreshToken(user_id: string) {
-    const [asscessToken, refreshToken] = await this.signTokens({ user_id });
+  async signAndSaveRefreshToken({
+    user_id,
+    role,
+  }: {
+    user_id: string;
+    role: number;
+  }) {
+    const [asscessToken, refreshToken] = await this.signTokens({
+      user_id,
+      role,
+    });
     const { exp, iat } = await this.decodeRefreshToken(refreshToken);
 
     new this.refreshTokenModel({
@@ -96,9 +119,10 @@ export class AuthService {
     return user.save();
   }
 
-  async login(user_id: string) {
+  async login({ user_id, role }: { user_id: string; role: number }) {
     const [asscessToken, refreshToken] = await this.signTokens({
       user_id,
+      role,
     });
     const { exp, iat } = await this.decodeRefreshToken(refreshToken);
 
@@ -121,8 +145,10 @@ export class AuthService {
 
     if (userDb) {
       const user_id = userDb._id.toString();
-      const { asscessToken, refreshToken } =
-        await this.signAndSaveRefreshToken(user_id);
+      const role = userDb.role;
+      const { asscessToken, refreshToken } = await this.signAndSaveRefreshToken(
+        { user_id, role },
+      );
 
       return { asscessToken, refreshToken };
     } else {
@@ -137,19 +163,23 @@ export class AuthService {
       };
 
       const newUser = await this.userModel.create(user);
-
       const { asscessToken, refreshToken } = await this.signAndSaveRefreshToken(
-        newUser._id.toString(),
+        { user_id: newUser._id.toString(), role: newUser.role },
       );
 
       return { asscessToken, refreshToken };
     }
   }
 
-  async refresh_token(user_id: string, exp: number, refresh_token: string) {
+  async refresh_token(
+    user_id: string,
+    role: number,
+    exp: number,
+    refresh_token: string,
+  ) {
     const [asscessToken, refreshToken] = await Promise.all([
-      this.signAccessToken({ user_id }),
-      this.signRefeshToken({ user_id, exp }),
+      this.signAccessToken({ user_id, role }),
+      this.signRefeshToken({ user_id, exp, role }),
       this.refreshTokenModel.deleteOne({ token: refresh_token }).exec(),
     ]);
 

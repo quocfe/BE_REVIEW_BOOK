@@ -32,8 +32,8 @@ export class AuthController {
   async login(@Req() req: Request): Promise<ResType> {
     const user = req.user as UserDocument;
     const user_id = user._id.toString();
-
-    const result = await this.authService.login(user_id);
+    const role = user.role;
+    const result = await this.authService.login({ user_id, role });
     return {
       data: result,
       message: 'login success',
@@ -61,10 +61,11 @@ export class AuthController {
   @Public()
   @Post('/refresh_token')
   async refresh_token(@Req() req: Request): Promise<ResType> {
-    const { user_id, exp } = req.decode_refresh_token;
+    const { user_id, exp, role } = req.decode_refresh_token;
     const refresh_token = req.body.refresh_token;
     const result = await this.authService.refresh_token(
       user_id,
+      role,
       exp,
       refresh_token,
     );

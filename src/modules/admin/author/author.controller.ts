@@ -8,17 +8,20 @@ import {
   Delete,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { Author } from 'src/enums/Author.enum';
 import { QuerysDto } from 'src/modules/admin/book/dto/params.dto';
+import { AdminGuard } from 'src/common/guard/admin.guard';
 
-@Controller('admin/author')
+@Controller('author')
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
+  @UseGuards(AdminGuard)
   @Post()
   async create(@Body() createAuthorDto: CreateAuthorDto): Promise<ResType> {
     const res = await this.authorService.create(createAuthorDto);
@@ -49,6 +52,7 @@ export class AuthorController {
     };
   }
 
+  @UseGuards(AdminGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,

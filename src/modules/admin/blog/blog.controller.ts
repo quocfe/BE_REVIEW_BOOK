@@ -8,16 +8,20 @@ import {
   Delete,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { QuerysDto } from 'src/modules/admin/book/dto/params.dto';
+import { AdminGuard } from 'src/common/guard/admin.guard';
+import { Public } from 'src/decorators/public-decorator';
 
 @Controller('admin/blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
+  @UseGuards(AdminGuard)
   @Post()
   async create(@Body() createBlogDto: CreateBlogDto): Promise<ResType> {
     await this.blogService.create(createBlogDto);
@@ -28,6 +32,7 @@ export class BlogController {
     };
   }
 
+  @Public()
   @Get()
   async findAll(@Query() querys: QuerysDto): Promise<ResType> {
     const blogs = await this.blogService.findAll(querys);
@@ -38,6 +43,7 @@ export class BlogController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ResType> {
     const result = await this.blogService.findOne(id);
@@ -48,6 +54,7 @@ export class BlogController {
     };
   }
 
+  @UseGuards(AdminGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -61,6 +68,7 @@ export class BlogController {
     };
   }
 
+  @UseGuards(AdminGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ResType> {
     const result = await this.blogService.remove(id);

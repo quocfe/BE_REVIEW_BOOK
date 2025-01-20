@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book, BookDocument } from 'src/schemas/books.schema';
@@ -58,21 +58,29 @@ export class BookService {
   }
 
   async findOne(id: string) {
-    return await this.bookModel
+    const book = await this.bookModel
       .findById({ _id: id })
       .where({ status: true })
       .populate('author_id', 'name slug')
       .populate('category_id', 'name slug avatar')
-      .exec()
-      .then((book: any) => {
-        return {
-          ...book.toObject(),
-          author: book.author_id,
-          category: book.category_id,
-          author_id: undefined,
-          category_id: undefined,
-        };
-      });
+      .exec();
+
+    if (!book) {
+      throw new HttpException(
+        {
+          message: 'Book not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      ...book.toObject(),
+      author: book.author_id,
+      category: book.category_id,
+      author_id: undefined,
+      category_id: undefined,
+    };
   }
 
   async update(id: string, updateBookDto: UpdateBookDto) {

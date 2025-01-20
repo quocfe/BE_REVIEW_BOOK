@@ -9,7 +9,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { NextFunction, Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { Auth } from 'src/enums/Auth.enum';
-import { UserService } from 'src/modules/user/user.service';
 import {
   RefreshToken,
   RefreshTokenDocument,
@@ -20,7 +19,6 @@ export class RefreshTokenMiddleware implements NestMiddleware {
   constructor(
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<RefreshTokenDocument>,
-    private userService: UserService,
     private jwtService: JwtService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {

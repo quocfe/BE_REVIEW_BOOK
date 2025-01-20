@@ -8,17 +8,21 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { Book } from 'src/enums/Book.enum';
 import { QuerysDto } from 'src/modules/admin/book/dto/params.dto';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { AdminGuard } from 'src/common/guard/admin.guard';
+import { Public } from 'src/decorators/public-decorator';
 
-@Controller('admin/book')
+@Controller('book')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
 
+  @UseGuards(AdminGuard)
   @Post('/create')
   async create(@Body() createBookDto: CreateBookDto): Promise<ResType> {
     const res = await this.bookService.create(createBookDto);
@@ -29,6 +33,7 @@ export class BookController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ResType> {
     const res = await this.bookService.findOne(id);
@@ -40,6 +45,7 @@ export class BookController {
     };
   }
 
+  @Public()
   @Get()
   async findAll(@Query() querys: QuerysDto): Promise<ResType> {
     const res = await this.bookService.findAll(querys);
@@ -51,6 +57,7 @@ export class BookController {
     };
   }
 
+  @UseGuards(AdminGuard)
   @Patch('update/:id')
   async update(
     @Param('id') id: string,
@@ -64,6 +71,7 @@ export class BookController {
     };
   }
 
+  @UseGuards(AdminGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ResType> {
     await this.bookService.disable(id);
